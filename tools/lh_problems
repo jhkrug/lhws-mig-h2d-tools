@@ -3,7 +3,8 @@
 ofile="$(realpath "$1")"
 cd ~/projects/suse/longhorn-website || exit 1
 find content -type f -name '*.md' | while read -r ifile; do
-    # https://regex101.com/r/1sgC2I/1
+    # https://regex101.com/r/1sgC2I/4
     # shellcheck disable=SC2016
-    py_pcre '(?:(?:(?:[ \n]*?)(?<fcb>(?:(?:[ \t])*`{3}(?:.|\n)*?`{3})))|(?:(?:^\s*\n)(?<icb>^(?:(?:[ ]{4}|\t).*?(?:\n))+))|(?:<br\/>)|(?:`.*?<.*?>.*?`))(*SKIP)(*FAIL)|(?:(?:{{2})*<.*>(?:}{2})*)' "$ifile"
+    # py_pcre '(?:(?:(?:[ \n]*?)(?<fcb>(?:(?:[ \t])*`{3}(?:.|\n)*?`{3})))|(?:(?:^\s*\n)(?<icb>^(?:(?:[ ]{4}|\t).*?(?:\n))+))|(?:<br\/>)|(?:`.*?<.*?>.*?`))(*SKIP)(*FAIL)|(?:(?:{{2})*<.*>(?:}{2})*)' "$ifile"
+    py_pcre '(?:(?:(?:[ \n]*?)(?<fcb>(?:(?:[ \t])*`{3}(?:.|\n)*?`{3})))|(?:(?:^\s*\n)(?<icb>^(?:(?:[ ]{4}|\t).*?(?:\n))+))|(?:<br\/>))(*SKIP)(*FAIL)|(?<ver>{{< current-version >}})|(?<fig>{{< figure.*>}})|(?<bbr><br>)' "$ifile"
 done > "$ofile"
