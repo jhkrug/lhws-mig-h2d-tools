@@ -1,0 +1,14 @@
+content/docs/_index.md:9:{{< version-list >}}
+content/docs/archives/0.8.0/getting-started/quick-start-with-helm.md:25:{{< requirement title="Helm setup" >}}
+content/docs/archives/0.8.0/getting-started/quick-start-with-helm.md:27:{{< /requirement >}}
+content/docs/archives/0.8.0/getting-started/quick-start-with-helm.md:85:{{< warning title="No authentication by default" >}}
+content/docs/archives/0.8.0/getting-started/quick-start-with-helm.md:87:{{< /warning >}}
+content/docs/archives/0.8.0/install/customizing-default-settings.md:10:{{< info >}}
+content/docs/archives/0.8.0/install/customizing-default-settings.md:14:{{< /info >}}
+content/docs/archives/0.8.0/install/install-with-helm.md:8:{{< requirement title="Helm setup" >}}
+content/docs/archives/0.8.0/install/install-with-helm.md:10:{{< /requirement >}}
+content/docs/archives/0.8.0/install/install-with-helm.md:76:{{< warning title="No authentication by default" >}}
+content/docs/archives/0.8.0/install/install-with-helm.md:78:{{< /warning >}}
+content/docs/archives/0.8.0/install/install-with-kubectl.md:23:{{< info title="Running Longhorn on Google Kubernetes Engine" >}}
+content/docs/archives/0.8.0/install/install-with-kubectl.md:25:{{< /info >}}
+content/docs/archives/_index.md:9:{{< version-list >}}
