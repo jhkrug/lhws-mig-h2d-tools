@@ -1,4 +1,9 @@
-Apply these steps in order
+## lhws-mig-h2d-tools
+
+Longhorn website migration, Hugo -> Docusaurus
+
+
+Apply these steps in order to provide the required fixes. The ordering helps by fixing things that might complicate further steps.
 
 1. Uses of `<br>` changed to `<br/>`
 1. Isolated instances of `<`, `>`, `>=`, and `<=` changed to `&lt;`, `&gt;`, utf-8 equivalents, ≤ and ≥.
