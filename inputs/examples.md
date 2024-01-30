@@ -23,6 +23,9 @@ For reference, this page provides examples of Kubernetes resources that use Long
 
 ### Block Volume
 
+```
+icb
+```
 
     apiVersion: v1
     kind: PersistentVolumeClaim
