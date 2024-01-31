@@ -3,8 +3,7 @@ import regex
 
 
 def fig2img(mdt):
-    p = r'{{<\s+figure\s+(?:(?:(?:alt="(?P<alt>.+?)")\s+)?src="(?P<src>.+?)"(?:\s+alt="(?P<alt2>.+?)")?)?\s*>}}'
-
+    p = r'{{<\s+figure\s+(?:(?:(?:alt="(?<alt>.+?)")\s+)?src="(?<src>.+?)"(?:\s+alt="(?<alt2>.+?)")?)?\s*>}}'
     matches = regex.finditer(p, mdt)
 
     for match in matches:
