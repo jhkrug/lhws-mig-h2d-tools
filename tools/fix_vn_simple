@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Move '{{< current-version }}' to a hardcoded version number
+# Assuming the 'content' is in the current directory
+
+cd content/docs
+find . -type f -name '*.md' | while read -r f
+do
+    vn=$(echo $f | cut -f2 -d'/')
+    sed -i "s|{{< current-version >}}|${vn}|g" $f
+done

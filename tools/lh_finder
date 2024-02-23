@@ -16,12 +16,17 @@ if [ "$1" == "-icb" ]; then
     ofile="$(realpath outputs/icb.txt)"
     py_pcre_runner "$re" "$ofile"
 elif [ "$1" == "-br" ]; then
-    re=''
+    re='<br>'
 elif [ "$1" == "-egr" ]; then
     re="${2}"
     ofile="$(realpath outputs/egr.txt)"
     cd ~/projects/suse/longhorn-website || exit 1
     grep -Enr "${re}" --include '*.md' content > "$ofile"
+elif [ "$1" == "-pcre" ]; then
+    re="${2}"
+    ofile="$(realpath outputs/pcre.txt)"
+    cd ~/projects/suse/longhorn-website || exit 1
+    pcre2grep -Mnr --include '.*\.md' "${re}" content > "$ofile"
 else
     echo "provide an option"
     exit 1
