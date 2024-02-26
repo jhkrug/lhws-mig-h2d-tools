@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# <br> => <br/>
-#
-
-for f in "$@"; do
-    sed -i 's/<br>/<br\/>/g' $f
-done

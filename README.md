@@ -41,7 +41,40 @@ The remaining 16 appear to be internal links in very early versions.
       `m4 -D lhv_CurrentVersion_lhv='1.2.3' <filename>`
 
     does the job. It's how to integrate this with CI pipelines and the current build tools.
-    - Aha! Preprocessor in `docusaurus.config.js` works!
+    - Aha! Preprocessor in `docusaurus.config.js` works! Something like this:
+
+    ```javascript
+    markdown: {
+      preprocessor: ({filePath, fileContent}) => {
+        // The regex extracts a version number that is being used as a part of
+        // directory name. The assumption is that versions numbers are
+        // '/n.n.n/' format. There must be at least one number.
+        // Valid examples: /1/ /1.1/, /123.456.789/, /1.2.3.4.5.6/
+        // Invalid: /1.2-dev/, /1.2rc3/
+        // Trying to keep it simple for our use case in Longhorn.
+        const regex = /\/(?<vno>(?:[0-9]{1,}\.{0,1})*)\//gm;
+        var fp = filePath;
+        var fc = fileContent;
+        var cCV = '2.3.4';
+        for (const match of fp.matchAll(regex)) {
+          fc = fc.replace(/{{< current-version >}}/g, `${match.groups.vno}`);
+        }
+        // The next line ensures that any use of {{< current-version >}}
+        // outside a versioned directory will be replaced with the default
+        // cCV (currentCurrentVersion). If the next line is commented out then
+        // the build fails if it finds any such. Which might be what you
+        // need.
+        fc = fc.replace(/{{< current-version >}}/g, cCV);
+        fc = fc.replace(/lhv_fp_lhv/g, fp);
+        return fc;
+      },
+    },
+    ```
+    - Also, angle brackets in indented code blocks don't work. The icb must be changed to a fenced code block.
+    - Lot's of weird internal errors generated in examples.md files. Fix by surrounding by ``. Can be automated?
+    - Need `slug: /` in `what-is-longhorn.md`.
+    - Will need lots of `_category_.json` to be inserted to make for a clean and ordered sidebar.
+
 
     The best current solution would be to use the Docusaurus preprocessor facility.
 

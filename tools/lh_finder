@@ -1,11 +1,21 @@
 #!/bin/bash
 
+if [ "$1" == "-wip" ];
+then
+    shift
+    src_path="$HOME/projects/suse/lhws-mig-h2d"
+    dirs_to_search="docs versioned_docs"
+else
+    src_path="$HOME/projects/suse/longhorn-website"
+    dirs_to_search="content"
+fi
+
 function py_pcre_runner {
     local re="$1"
     local ofile="$2"
 
-    cd ~/projects/suse/longhorn-website || exit 1
-    find content -type f -name '*.md' | while read -r ifile; do
+    cd $src_path || exit 1
+    find $dirs_to_search -type f -name '*.md' | while read -r ifile; do
         py_pcre "${re}" "$ifile"
     done > "$ofile"
 }
@@ -20,13 +30,18 @@ elif [ "$1" == "-br" ]; then
 elif [ "$1" == "-egr" ]; then
     re="${2}"
     ofile="$(realpath outputs/egr.txt)"
-    cd ~/projects/suse/longhorn-website || exit 1
-    grep -Enr "${re}" --include '*.md' content > "$ofile"
+    cd $src_path || exit 1
+    grep -Enr "${re}" --include '*.md' $dirs_to_search > "$ofile"
 elif [ "$1" == "-pcre" ]; then
     re="${2}"
     ofile="$(realpath outputs/pcre.txt)"
-    cd ~/projects/suse/longhorn-website || exit 1
-    pcre2grep -Mnr --include '.*\.md' "${re}" content > "$ofile"
+    cd "$src_path" || exit 1
+    pcre2grep -Mnr --include '.*\.md' "${re}" $dirs_to_search > "$ofile"
+elif [ "$1" == "-py_pcre" ]; then
+    re="${2}"
+    ofile="$(realpath outputs/py_pcre.txt)"
+    cd "$src_path" || exit 1
+    py_pcre_runner "$re" "$ofile"
 else
     echo "provide an option"
     exit 1
