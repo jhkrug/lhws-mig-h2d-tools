@@ -1,15 +1,24 @@
 #!/bin/bash
 
 for f in "$@"; do
-    sed -i 's/<br>/<br\/>/g' $f
-    sed -i 's/< {{< current-version >}}/\&lt; {{< current-version >}}/g' $f
-    sed -i 's/< v{{< current-version >}}/\&lt; v{{< current-version >}}/g' $f
-    sed -i 's/adds <REGISTRY_URL> prefix/adds `<REGISTRY_URL>` prefix/g' $f
-    sed -i 's/<user specified replica count, 3 by default>/"user specified replica count, 3 by default"/' $f
-    sed -i 's/<=/≤/g' $f
-    sed -i 's/>=/≥/g' $f
-    sed -i 's/      kubectl delete node <node-name>$/      kubectl delete node `<node-name>`$/' $f
-    python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fig2img.py $f
-    python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_zone_angles.py $f
-    ##python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_reg_url_angles.py $f
+   sed -i 's/<br>/<br\/>/g' "$f"
+   sed -i 's/< {{< current-version >}}/\&lt; {{< current-version >}}/g' "$f"
+   sed -i 's/< v{{< current-version >}}/\&lt; v{{< current-version >}}/g' "$f"
+   sed -i 's/adds <REGISTRY_URL> prefix/adds `<REGISTRY_URL>` prefix/g' "$f"
+   sed -i 's/<user specified replica count, 3 by default>/"user specified replica count, 3 by default"/' "$f"
+   sed -i 's/<=/≤/g' "$f"
+   sed -i 's/>=/≥/g' "$f"
+   sed -i 's/      kubectl delete node <node-name>$/      kubectl delete node `<node-name>`$/' "$f"
+   sed -i 's/^{{< requirement title="Helm setup" >}}/:::note/' "$f"
+   sed -i 's/^{{< \/requirement >}}/:::/' "$f"
+   sed -i 's/^{{< warning title="No authentication by default" >}}/:::warning/' "$f"
+   sed -i 's/^{{< \/warning >}}/:::/' "$f"
+   sed -i 's/^{{< info >}}/:::info/' "$f"
+   sed -i 's/^{{< \/info >}}/:::/' "$f"
+   sed -i 's/^{{< info title="Running Longhorn on Google Kubernetes Engine" >}}/:::info/' "$f"
+   sed -Eri 's/^weight: ([0-9]{1,})[ ]{0,}$/sidebar_position: \1/' "$f"
+
+   python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fig2img.py "$f"
+   python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_zone_angles.py "$f"
+#    ##python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_reg_url_angles.py "$f"
 done

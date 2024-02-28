@@ -1,0 +1,35 @@
+#!/bin/bash
+
+cd /home/jhk/projects/suse/lhws-mig-h2d || exit 1
+
+#for v in 1.3.3 1.3.4
+#for v in 0.8.0 0.8.1 1.0.0 1.0.1 1.0.2 1.1.0 1.1.1 1.1.2 1.1.3 1.2.0 1.2.1 1.2.2 1.2.3 1.2.4 1.2.5 1.2.6 1.3.0 1.3.1 1.3.2 1.3.3 1.3.4
+#do
+#  rm -rf docs/*
+#  echo Processing "$v"
+#  cp -pr ../longhorn-website/content/docs/archives/"$v"/* docs/.
+#  ../lhws-mig-h2d-tools/tools/fix_icb >/dev/null 2>&1
+#  ../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
+#  sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
+#  find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things "{}"
+#  yarn docusaurus docs:version "$v"
+#done
+
+#for v in 1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.6.0 1.6.1 1.7.0
+for v in 1.6.1 1.7.0
+do
+  rm -rf docs/*
+  echo Processing "$v"
+  cp -pr ../longhorn-website/content/docs/"$v"/* docs/.
+  ../lhws-mig-h2d-tools/tools/fix_icb >/dev/null 2>&1
+  ../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
+  sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
+  find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things "{}"
+  yarn docusaurus docs:version "$v"
+done
+
+cp -pr ../longhorn-website/content/blog .
+mv blog/_index.md blog/index.md
+cp -pr ../longhorn-website/content/kb .
+mv kb/_index.md kb/index.md
+/home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_icb_blog_and_kb

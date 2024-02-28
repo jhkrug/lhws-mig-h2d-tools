@@ -1,0 +1,12 @@
+#!/bin/bash
+
+sd="/home/jhk/projects/suse/lhws-mig-h2d"
+for f in "$sd"/blog/*.md "$sd"/kb/*.md
+do
+  sed -i 's/<=/≤/g' "$f"
+  sed -i 's/>=/≥/g' "$f"
+  perl -pi -e 's/<(?<url>http[s]{0,1}.*)>/`$+{url}`/g' "$f"
+  python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fig2img.py "$f"
+done
+
+python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/i2f_cb.py "$sd"/kb/troubleshooting-unexpected-expansion-leads-to-degradation-or-attach-failure.md

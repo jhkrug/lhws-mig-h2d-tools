@@ -1,0 +1,23 @@
+#!/bin/bash
+
+for f in \
+    docs/references/examples.md \
+    docs/snapshots-and-backups/scheduling-backups-and-snapshots.md
+do
+  python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/i2f_cb.py /home/jhk/projects/suse/lhws-mig-h2d/$f
+done
+
+#    /versioned_docs/version-1.4.0/references/examples.md \
+#    /versioned_docs/version-1.4.1/references/examples.md \
+#    /versioned_docs/version-1.4.2/references/examples.md \
+#    /versioned_docs/version-1.4.3/references/examples.md \
+#    /versioned_docs/version-1.4.4/references/examples.md \
+#    /versioned_docs/version-1.4.5/references/examples.md \
+#    /versioned_docs/version-1.5.0/references/examples.md \
+#    /versioned_docs/version-1.5.1/references/examples.md \
+#    /versioned_docs/version-1.5.2/references/examples.md \
+#    /versioned_docs/version-1.5.3/references/examples.md \
+#    /versioned_docs/version-1.5.4/references/examples.md \
+#    /versioned_docs/version-1.6.0/references/examples.md \
+#    /versioned_docs/version-1.6.1/references/examples.md \
+#    /versioned_docs/version-1.7.0/references/examples.md

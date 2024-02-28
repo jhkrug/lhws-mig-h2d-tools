@@ -2,7 +2,7 @@ import sys
 import regex
 
 
-def fig2img(mdt):
+def fixer(mdt):
     p = r'((?:(?:[ \n]*?)(?<fcb>(?:(?:[ \t])*`{3}(?:.|\n)*?`{3})))|(`.*<.*>.*`)|(`.*<.*`)|(`.*>.*`)|(^[ ]{0,}>.*)|{{< current-version >}}|^    .*|</.*>|<br>|<br/>)(*SKIP)(*FAIL)|(?<tbq><Zone name of the node>)'
     matches = regex.finditer(p, mdt)
 
@@ -24,7 +24,7 @@ def main():
         md_in = f.read()
         f.close()
 
-    md_out = fig2img(md_in)
+    md_out = fixer(md_in)
 
     with open(md_file, 'w', encoding='utf-8') as f:
         f.write(md_out)

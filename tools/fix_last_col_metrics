@@ -1,0 +1,7 @@
+#!/bin/bash
+
+f="docs/monitoring/metrics.md"
+
+perl -pi -e 's/(?<lc>\S)\|$/$+{lc} \|/g' docs/monitoring/metrics.md; perl -pi -e 's/- \|/-|/g' "$f"
+
+perl -pi -e 's/\| Example \|(*SKIP)(*FAIL)|\| *(?<lc>(?:.(?!\|))+) *\|*$/| `$+{lc}` |/g' "$f"
