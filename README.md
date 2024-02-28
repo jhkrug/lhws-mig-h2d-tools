@@ -112,3 +112,7 @@ all fixed for build, necessary ordering and `_category_.json` files in place,
 - Get some PR's raised to fix the easy things like:
   - figures includes to standard markdown
   -
+
+## Other things
+
+- Google Analytics

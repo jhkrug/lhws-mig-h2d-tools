@@ -17,6 +17,8 @@ for f in "$@"; do
    sed -i 's/^{{< \/info >}}/:::/' "$f"
    sed -i 's/^{{< info title="Running Longhorn on Google Kubernetes Engine" >}}/:::info/' "$f"
    sed -Eri 's/^weight: ([0-9]{1,})[ ]{0,}$/sidebar_position: \1/' "$f"
+   # In the hugo epo docs where at content/docs now just at docs so modify relative links ../../ to ../
+   sed -i 's/\.\.\/\.\.\//\.\.\//' "$f"
 
    python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fig2img.py "$f"
    python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_zone_angles.py "$f"

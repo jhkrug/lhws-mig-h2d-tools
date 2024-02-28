@@ -16,7 +16,7 @@ cd /home/jhk/projects/suse/lhws-mig-h2d || exit 1
 #done
 
 #for v in 1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.6.0 1.6.1 1.7.0
-for v in 1.6.1 1.7.0
+for v in 1.5.1 1.6.1 1.7.0
 do
   rm -rf docs/*
   echo Processing "$v"
@@ -33,3 +33,4 @@ mv blog/_index.md blog/index.md
 cp -pr ../longhorn-website/content/kb .
 mv kb/_index.md kb/index.md
 /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_icb_blog_and_kb
+
