@@ -1,26 +1,100 @@
 #!/bin/bash
 
-for f in "$@"; do
-   sed -i 's/<br>/<br\/>/g' "$f"
-   sed -i 's/< {{< current-version >}}/\&lt; {{< current-version >}}/g' "$f"
-   sed -i 's/< v{{< current-version >}}/\&lt; v{{< current-version >}}/g' "$f"
-   sed -i 's/adds <REGISTRY_URL> prefix/adds `<REGISTRY_URL>` prefix/g' "$f"
-   sed -i 's/<user specified replica count, 3 by default>/"user specified replica count, 3 by default"/' "$f"
-   sed -i 's/<=/≤/g' "$f"
-   sed -i 's/>=/≥/g' "$f"
-   sed -i 's/      kubectl delete node <node-name>$/      kubectl delete node `<node-name>`$/' "$f"
-   sed -i 's/^{{< requirement title="Helm setup" >}}/:::note/' "$f"
-   sed -i 's/^{{< \/requirement >}}/:::/' "$f"
-   sed -i 's/^{{< warning title="No authentication by default" >}}/:::warning/' "$f"
-   sed -i 's/^{{< \/warning >}}/:::/' "$f"
-   sed -i 's/^{{< info >}}/:::info/' "$f"
-   sed -i 's/^{{< \/info >}}/:::/' "$f"
-   sed -i 's/^{{< info title="Running Longhorn on Google Kubernetes Engine" >}}/:::info/' "$f"
-   sed -Eri 's/^weight: ([0-9]{1,})[ ]{0,}$/sidebar_position: \1/' "$f"
-   # In the hugo epo docs where at content/docs now just at docs so modify relative links ../../ to ../
-   sed -i 's/\.\.\/\.\.\//\.\.\//' "$f"
+v="$1"
+shift
 
-   python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fig2img.py "$f"
-   python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_zone_angles.py "$f"
-#    ##python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_reg_url_angles.py "$f"
+for f in "$@"; do
+    # Fix HTML line breaks
+    sed -i 's/<br>/<br\/>/g' "$f"
+    # Next two get rid of some isolated < signs being picked up as start of HTML tag.
+    sed -i 's/< {{< current-version >}}/\&lt; {{< current-version >}}/g' "$f"
+    sed -i 's/< v{{< current-version >}}/\&lt; v{{< current-version >}}/g' "$f"
+    # Add an inline code block here
+    sed -i 's/adds <REGISTRY_URL> prefix/adds `<REGISTRY_URL>` prefix/g' "$f"
+    # Just do something so it works.
+    sed -i 's/<user specified replica count, 3 by default>/"user specified replica count, 3 by default"/' "$f"
+    # Next 2 get rid of more unwanted '<' and '>'
+    sed -i 's/<=/≤/g' "$f"
+    sed -i 's/>=/≥/g' "$f"
+    # Fix an isolated <> needing an inline code block.
+    sed -i 's/      kubectl delete node <node-name>$/      kubectl delete node `<node-name>`$/' "$f"
+    # Start of fixing Hugo admonition to Docusaurus admonition
+    sed -i 's/^{{< requirement title="Helm setup" >}}/:::note/' "$f"
+    sed -i 's/^{{< \/requirement >}}/:::/' "$f"
+    sed -i 's/^{{< warning title="No authentication by default" >}}/:::warning/' "$f"
+    sed -i 's/^{{< \/warning >}}/:::/' "$f"
+    sed -i 's/^{{< info >}}/:::info/' "$f"
+    sed -i 's/^{{< \/info >}}/:::/' "$f"
+    sed -i 's/^{{< info title="Running Longhorn on Google Kubernetes Engine" >}}/:::info/' "$f"
+    # End of fixing Hugo admonition to Docusaurus admonition
+    # Move front matter weight to sidebar_position
+    sed -Eri 's/^weight: ([0-9]{1,})[ ]{0,}$/sidebar_position: \1/' "$f"
+    # In the hugo repo docs where at content/docs now just at docs so modify
+    #perl -pi -e 's/\(\.\.\/(?<keep>[\w])/\(\.\/$+{keep}/g' "$f"
+    #perl -pi -e 's/\]\(\.\.\/\.\.\//\]\(\.\.\//g' "$f"
+    if [ "$v" == "ver" ]; then
+      true
+      # Next one is for anchors on the same page not (./#anchor-name) but (#anchor-name)
+      sed -i 's/](\.\/#/](#/g' "$f"
+      # Move internal link ../something to ./something but not ../../ to ./../
+      perl -pi -e 's/\(\.\.\/(?<keep>[\w])/\(\.\/$+{keep}/g' "$f"
+      perl -pi -e 's/]\((?<before>.*)\/#(?<after>.*?\))/]($+{before}#$+{after}/g' "$f"
+      #
+      sed -i 's|](\.\./\.\./maintenance/maintenance|](../../maintenance|g' "$f"
+      sed -i 's|](\.\./\.\./advanced-resources/backing-image/backing-image|](../advanced-resources/backing-image|g' "$f"
+      if [ "$(basename $f)" == "index.md" ]; then
+        sed -i 's|](\.\./\.\./advanced-resources/fast-replica-rebuild/index.html|](../../advanced-resources/fast-replica-rebuild|g' "$f"
+        sed -i 's|](\.\./\.\./advanced-resources/snapshot-data-integrity-check/index.html|](../../advanced-resources/snapshot-data-integrity-check|g' "$f"
+        sed -i 's|](\.\./\.\./advanced-resources/rwx-workloads/index.html|](../../advanced-resources/rwx-workloads|g' "$f"
+      fi
+      if [ "$(basename $f)" != "index.md" ]; then
+        sed -i 's|](\.\./\.\./data-recovery|](../data-recovery|g' "$f"
+        sed -i 's|](\.\./\.\./data-integrity|](../data-integrity|g' "$f"
+        sed -i 's|](\.\./\.\./advanced-resources|](../advanced-resources|g' "$f"
+        sed -i 's|](\.\./\.\./nodes|](../nodes|g' "$f"
+        sed -i 's|](\.\./\.\./v2|](../v2|g' "$f"
+        sed -i 's|](\.\./\.\./snapshot|](../snapshot|g' "$f"
+        sed -i 's|](\.\./\.\./concepts|](../concepts|g' "$f"
+        sed -i 's|](\.\./\.\./best|](../best|g' "$f"
+        sed -i 's|](\.\./\.\./high|](../high|g' "$f"
+        sed -i 's|](\.\./\.\./high|](../high|g' "$f"
+        sed -i 's|](\.\./\.\./access|](../access|g' "$f"
+        sed -i 's|](\.\./\.\./upgrade|](../upgrade|g' "$f"
+        sed -i 's|](\.\./\.\./install|](../install|g' "$f"
+        sed -i 's|](\.\./\.\./references|](../references|g' "$f"
+        sed -i 's|](\.\./\.\./sched|](../sched|g' "$f"
+        sed -i 's|](\.\./\.\./default-disk-and-node-config|](../default-disk-and-node-config|g' "$f"
+        sed -i 's|](\.\./\.\./volumes-and-nodes|](../volumes-and-nodes|g' "$f"
+        sed -i 's|](\.\./\.\./deploy|](../deploy|g' "$f"
+      fi
+      #
+      sed -i 's|](\.\./\.\./\.\./\.\./kb|](/kb|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./references|](../../references|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./snapshots|](../../snapshots|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./advanced|](../../advanced|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./deploy|](../../deploy|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./high|](../../high|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./maint|](../../maint|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./monit|](../../monit|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./nodes|](../../nodes|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./trouble|](../../trouble|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./v2|](../../v2|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./concepts|](../../concepts|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./volumes-and-nodes|](../../volumes-and-nodes|g' "$f"
+      sed -i 's|](\.\./\.\./\.\./best-practices|](../../best-practices|g' "$f"
+      #sed -i 's/](\.\.\/\.\.\//](\.\.\//g' "$f"
+      if [ "$f" == "docs/deploy/important-notes/index.md" ]; then
+        sed -i 's|](\./uninstall|](../uninstall|g' "$f"
+      fi
+      if [ "$f" == "docs/deploy/install/index.md" ]; then
+        sed -i 's|](\./install/airgap|](./airgap|g' "$f"
+      fi
+      if [ "$f" == "docs/references/settings.md" ]; then
+        sed -i 's|](\.\./\.\./maint|](../maint|g' "$f"
+      fi
+    fi
+    # Next move Hugo image declarations to standard markdown declarations
+    python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fig2img.py "$f"
+      # Fix a few isolated weird things
+    python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_zone_angles.py "$f"
 done

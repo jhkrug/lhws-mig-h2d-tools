@@ -116,3 +116,9 @@ all fixed for build, necessary ordering and `_category_.json` files in place,
 ## Other things
 
 - Google Analytics
+
+
+## LH internal links
+
+../something -> ./something
+../../something > ../../something - so stays the same
