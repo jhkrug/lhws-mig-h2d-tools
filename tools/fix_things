@@ -9,6 +9,8 @@ for f in "$@"; do
     # Next two get rid of some isolated < signs being picked up as start of HTML tag.
     sed -i 's/< {{< current-version >}}/\&lt; {{< current-version >}}/g' "$f"
     sed -i 's/< v{{< current-version >}}/\&lt; v{{< current-version >}}/g' "$f"
+    # And change the format of the current-version variable
+    sed -i 's/{{< current-version >}}/[[< current-version >]]/g' "$f"
     # Add an inline code block here
     sed -i 's/adds <REGISTRY_URL> prefix/adds `<REGISTRY_URL>` prefix/g' "$f"
     # Just do something so it works.

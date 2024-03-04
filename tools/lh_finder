@@ -4,7 +4,11 @@ if [ "$1" == "-wip" ];
 then
     shift
     src_path="$HOME/projects/suse/lhws-mig-h2d"
-    dirs_to_search="docs versioned_docs"
+    if [ -d "$src_path"/versioned_docs ]; then
+      dirs_to_search="docs versioned_docs"
+    else
+      dirs_to_search="docs"
+    fi
 else
     src_path="$HOME/projects/suse/longhorn-website"
     dirs_to_search="content"
