@@ -7,7 +7,7 @@ def fig2img(mdt):
     matches = regex.finditer(p, mdt)
 
     for match in matches:
-        alt = match.group('alt') or match.group('alt2') or 'images'
+        alt = match.group('alt') or match.group('alt2') or 'Image'
         src = match.group('src')
         mdt = mdt.replace(match.group(0), f'![{alt}]({src})')
 

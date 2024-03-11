@@ -30,7 +30,9 @@ for f in "$@"; do
     sed -i 's/^{{< info title="Running Longhorn on Google Kubernetes Engine" >}}/:::info/' "$f"
     # End of fixing Hugo admonition to Docusaurus admonition
     # Move front matter weight to sidebar_position
-    sed -Eri 's/^weight: ([0-9]{1,})[ ]{0,}$/sidebar_position: \1/' "$f"
+    sed -Eri 's/^[ ]{0,2}weight: ([0-9]{1,})[ ]{0,}$/sidebar_position: \1/' "$f"
+    sed -Eri 's/^[ ]{0,2}title: (.*$)[ ]{0,}$/title: \1/' "$f"
+    sed -Eri 's/^[ ]{0,2}description: (.*$)[ ]{0,}$/description: \1/' "$f"
     # In the hugo repo docs where at content/docs now just at docs so modify
     #perl -pi -e 's/\(\.\.\/(?<keep>[\w])/\(\.\/$+{keep}/g' "$f"
     #perl -pi -e 's/\]\(\.\.\/\.\.\//\]\(\.\.\//g' "$f"
