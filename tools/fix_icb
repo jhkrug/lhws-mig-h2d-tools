@@ -4,7 +4,7 @@ for f in \
     docs/references/examples.md \
     docs/snapshots-and-backups/scheduling-backups-and-snapshots.md
 do
-  python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/i2f_cb.py /home/jhk/projects/suse/lhws-mig-h2d/$f
+  python /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/i2f_cb.py /home/jhk/projects/suse/longhorn-website-docusaurus/$f
 done
 
 #    /versioned_docs/version-1.4.0/references/examples.md \

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sd="/home/jhk/projects/suse/lhws-mig-h2d"
+sd="/home/jhk/projects/suse/longhorn-website-docusaurus"
 for f in "$sd"/blog/*.md "$sd"/kb/*.md
 do
   sed -i 's/<=/≤/g' "$f"
@@ -13,7 +13,6 @@ for f in "$sd"/kb/*.md
 do
    sed -i 's/](\.\.\/\.\.\/docs\/1\.5\.1/](\.\.\/docs\/1\.5\.1/g' "$f"
    sed -i 's/](\.\.\/troubleshooting/](\.\.\/kb\/troubleshooting/g' "$f"
-   #sed -i 's/](\.\.\//](\.\.\/kb\//g' "$f"
    perl -pi -e 's/]\((?<before>.*)\/#(?<after>.*?\))/]($+{before}#$+{after}/g' "$f"
 done
 

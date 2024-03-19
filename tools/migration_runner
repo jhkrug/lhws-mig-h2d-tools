@@ -1,79 +1,139 @@
 #!/bin/bash
 
 do_versions=1
-do_kb_and_blog=0
+do_kb_and_blog=1
 do_archives=0
 do_current=1
+debug=0
+short=0
+
+function dprint() {
+	if [ $debug -eq 1 ]; then
+		echo "$*"
+	fi
+}
+
+function fix_toplevel_ordering() {
+	ifile=../lhws-mig-h2d-tools/ordering.list
+	while read -r line; do
+		sb_pos=$(echo "$line" | cut -f1 -d' ')
+		fn=$(echo "$line" | cut -f2 -d' ')
+		if [ -f "$fn" ]; then
+			dprint "Found index file $fn, adjusting sidebar_position to $sb_pos"
+			sed -Eri "s/^sidebar_position: .*$/sidebar_position: $sb_pos/" "$fn"
+			dprint "$(grep -n sidebar_position "$fn")"
+		else
+			dprint "Did not find index file $fn"
+		fi
+	done < "$ifile"
+}
 
 a_versions="0.8.0 0.8.1 1.0.0 1.0.1 1.0.2 1.1.0 1.1.1 1.1.2 1.1.3 1.2.0 1.2.1 1.2.2 1.2.3 1.2.4 1.2.5 1.2.6 1.3.0 1.3.1 1.3.2 1.3.3 1.3.4"
-c_versions="1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.6.0 1.6.1 1.7.0"
-c_versions="1.6.1 1.7.0"
+c_versions="1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.5.5 1.6.0 1.6.1 1.7.0"
 
-cd /home/jhk/projects/suse/lhws-mig-h2d || exit 1
+cd /home/jhk/projects/suse/longhorn-website-docusaurus || exit 1
+
+ln -sf docusaurus.config-buildtime.js docusaurus.config.js
 
 if [ $do_archives -eq 1 ]; then
-  for v in $a_versions
-  do
-    rm -rf docs/*
-    echo Processing "$v"
-    cp -pr ../longhorn-website/content/docs/archives/"$v"/* docs/.
-    mv docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-Rancher-snapshot.md \
-      docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-rancher-snapshot.md > /dev/null 2>&1
-    find docs -name _index.md | while read -r f
-    do
-      dname=$(dirname "$f")
-      lastpart=$(basename "$dname")
-      does_this_exist="$dname"/"$lastpart".md
-      if [ ! -f "$does_this_exist" ]
-      then
-        mv "$f" "$dname"/index.md
-      fi
-    done
-    ../lhws-mig-h2d-tools/tools/fix_icb >/dev/null 2>&1
-    ../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
-    sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
-    find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things arc_ver "{}"
-    if [ $do_versions -eq 1 ]; then
-      yarn docusaurus docs:version "$v"
-    fi
-  done
+	for v in $a_versions
+	do
+		rm -rf docs/*
+		echo Processing "$v"
+		cp -pr ../longhorn-website/content/docs/archives/"$v"/* docs/.
+		mv docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-Rancher-snapshot.md \
+			docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-rancher-snapshot.md > /dev/null 2>&1
+		find docs -name _index.md | while read -r f; do
+			dprint "Processing index $f"
+			dname=$(dirname "$f")
+			lastpart=$(basename "$dname")
+			does_this_exist="$dname"/"$lastpart".md
+			dprint "Looking for $does_this_exist"
+			if [ ! -f "$does_this_exist" ]; then
+				if ! mv "$f" "$dname"/index.md; then
+					dprint "Problem moving $f to $dname/index.md"
+				else
+					dprint "Succesfully moved $f to $dname/index.md"
+				fi
+			fi
+		done
+		../lhws-mig-h2d-tools/tools/fix_icb >/dev/null 2>&1
+		../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
+		# shellcheck disable=SC2016
+		sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
+		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things arc_ver "{}"
+		fix_toplevel_ordering
+		if [ $do_versions -eq 1 ]; then
+			yarn docusaurus docs:version "$v"
+		fi
+	done
 fi
 
 if [ $do_current -eq 1 ]; then
-  for v in $c_versions
-  do
-    rm -rf docs/*
-    echo Processing "$v"
-    cp -pr ../longhorn-website/content/docs/"$v"/* docs/.
-    mv docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-Rancher-snapshot.md \
-      docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-rancher-snapshot.md > /dev/null 2>&1
-    find docs -name _index.md | while read -r f
-    do
-      dname=$(dirname "$f")
-      lastpart=$(basename "$dname")
-      does_this_exist="$dname"/"$lastpart".md
-      if [ ! -f "$does_this_exist" ]
-      then
-        mv "$f" "$dname"/index.md
-      fi
-    done
-    ../lhws-mig-h2d-tools/tools/fix_icb >/dev/null 2>&1
-    ../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
-    sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
-    find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things ver "{}"
-    if [ $do_versions -eq 1 ]; then
-      yarn docusaurus docs:version "$v"
-    fi
-  done
+	for v in $c_versions; do
+		rm -rf docs/*
+		echo Processing "$v"
+		cp -pr ../longhorn-website/content/docs/"$v"/* docs/.
+		mv docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-Rancher-snapshot.md \
+			docs/advanced-resources/system-backup-restore/restore-to-a-cluster-contains-data-using-rancher-snapshot.md > /dev/null 2>&1
+		find docs -name _index.md | while read -r f; do
+			dprint "Processing index $f"
+			dname=$(dirname "$f")
+			lastpart=$(basename "$dname")
+			does_this_exist="$dname"/"$lastpart".md
+			dprint "Looking for $does_this_exist"
+			if [ ! -f "$does_this_exist" ]; then
+				if ! mv "$f" "$dname"/index.md; then
+					dprint "Problem moving $f to $dname/index.md"
+				else
+					dprint "Succesfully moved $f to $dname/index.md"
+				fi
+			fi
+		done
+		../lhws-mig-h2d-tools/tools/fix_icb >/dev/null 2>&1
+		../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
+		# shellcheck disable=SC2016
+		sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
+		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things ver "{}"
+		fix_toplevel_ordering
+		if [ $do_versions -eq 1 ]; then
+			yarn docusaurus docs:version "$v"
+		fi
+	done
 fi
 
 if [ $do_kb_and_blog -eq 1 ]; then
-  cp -pr ../longhorn-website/content/blog .
-  mv blog/_index.md blog/index.md
-  cp -pr ../longhorn-website/content/kb .
-  mv kb/_index.md kb/index.md
-  /home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_icb_blog_and_kb
+	cp -pr ../longhorn-website/content/blog .
+	mv blog/_index.md blog/index.md
+
+	while read -r line; do
+		ln=$(echo "$line" | cut -f1 -d' ')
+		fn=$(echo "$line" | cut -f2 -d' ')
+		dprint "Blog: inserting truncate, line ${ln} in ${fn}."
+		sed -i "$ln i \<\!\-\- truncate \-\-\>" blog/"$fn"
+	done < ../lhws-mig-h2d-tools/blog-truncate.list
+
+	cp -pr ../longhorn-website/content/kb .
+	mv kb/_index.md kb/index.md
+	cp ../lhws-mig-h2d-tools/kb-authors.yml kb/authors.yml
+	/home/jhk/projects/suse/lhws-mig-h2d-tools/tools/fix_icb_blog_and_kb
+
+	while read -r line; do
+		ln=$(echo "$line" | cut -f1 -d' ')
+		fn=$(echo "$line" | cut -f2 -d' ')
+		dprint "KB: inserting truncate, line ${ln} in ${fn}."
+		sed -i "$ln i \<\!\-\- truncate \-\-\>" kb/"$fn"
+	done < ../lhws-mig-h2d-tools/kb-truncate.list
+
 else
-  echo hello > blog/index.md
-  echo hello > kb/index.md
+	echo hello > blog/index.md
+	echo hello > kb/index.md
 fi
+
+if [ $short -eq 1 ]; then
+	ln -sf docusaurus.config-runtime-short.js docusaurus.config.js
+else
+	ln -sf docusaurus.config-runtime.js docusaurus.config.js
+fi
+
+
