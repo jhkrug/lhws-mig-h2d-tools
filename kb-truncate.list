@@ -2,7 +2,7 @@
 19 how-to-migrate-longhorn-chart-installed-in-old-rancher-ui-to-the-chart-in-new-rancher-ui.md
 18 kubernetes-resource-revision-frequency-expectations.md
 26 selinux-and-longhorn.md
-21 space-consumption-guideline.md
+17 space-consumption-guideline.md
 23 tip-only-use-storage-on-a-set-of-nodes.md
 31 troubleshooting-create-support-bundle-with-curl.md
 20 troubleshooting-default-settings-do-not-persist.md
@@ -24,7 +24,7 @@
 26 troubleshooting-traefik-2.x-as-ingress-controller.md
 20 troubleshooting-unable-to-mount-an-nfs-backup-target.md
 37 troubleshooting-unexpected-expansion-leads-to-degradation-or-attach-failure.md
-26 troubleshooting-volume-attachment-fails-due-to-selinux-denials.md
+22 troubleshooting-volume-attachment-fails-due-to-selinux-denials.md
 25 troubleshooting-volume-cannot-be-cleaned-up-after-the-node-of-the-workload-pod-is-down-and-recovered.md
 29 troubleshooting-volume-filesystem-corruption.md
 32 troubleshooting-volume-pvc-xxx-not-scheduled.md

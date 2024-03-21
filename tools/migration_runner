@@ -2,7 +2,7 @@
 
 do_versions=1
 do_kb_and_blog=1
-do_archives=0
+do_archives=1
 do_current=1
 debug=0
 short=0
@@ -14,7 +14,7 @@ function dprint() {
 }
 
 function fix_toplevel_ordering() {
-	ifile=../lhws-mig-h2d-tools/ordering.list
+	local ifile=../lhws-mig-h2d-tools/ordering.list
 	while read -r line; do
 		sb_pos=$(echo "$line" | cut -f1 -d' ')
 		fn=$(echo "$line" | cut -f2 -d' ')
@@ -28,10 +28,44 @@ function fix_toplevel_ordering() {
 	done < "$ifile"
 }
 
+function dump_terminology_toc() {
+	local v="$1"
+	local rfile=../lhws-mig-h2d-tools/terminology-toc-delete.list
+	local drange
+	drange=$(grep "^${v}" ${rfile} | cut -f2 -d' ')
+	if [ "${drange}" != "" ]; then
+		sed -i "${drange}d" docs/terminology.md
+	fi
+}
+
+function dump_architecture_toc() {
+	local v="$1"
+	local rfile=../lhws-mig-h2d-tools/architecture-toc-delete.list
+	local drange
+	drange=$(grep "^${v}" ${rfile} | cut -f2 -d' ')
+	if [ "${drange}" != "" ]; then
+		sed -i "${drange}d" docs/concepts.md
+	fi
+}
+
+function dump_best_practices_toc() {
+	local v="$1"
+	local rfile=../lhws-mig-h2d-tools/best-practices-toc-delete.list
+	local drange
+	drange=$(grep "^${v}" ${rfile} | cut -f2 -d' ')
+	if [ "${drange}" != "" ]; then
+		sed -i "${drange}d" docs/best-practices.md 2>/dev/null
+	fi
+}
+
 a_versions="0.8.0 0.8.1 1.0.0 1.0.1 1.0.2 1.1.0 1.1.1 1.1.2 1.1.3 1.2.0 1.2.1 1.2.2 1.2.3 1.2.4 1.2.5 1.2.6 1.3.0 1.3.1 1.3.2 1.3.3 1.3.4"
 c_versions="1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.5.5 1.6.0 1.6.1 1.7.0"
 
 cd /home/jhk/projects/suse/longhorn-website-docusaurus || exit 1
+
+# Clean previous runs
+rm -rf blog/* kb/* versioned_* versions.json docs/*
+
 
 ln -sf docusaurus.config-buildtime.js docusaurus.config.js
 
@@ -61,8 +95,19 @@ if [ $do_archives -eq 1 ]; then
 		../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
 		# shellcheck disable=SC2016
 		sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
-		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things arc_ver "{}"
+		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things arc_ver "$v" "{}"
 		fix_toplevel_ordering
+		if [ "$v" == "0.8.0" ]; then
+			# Additional
+			sed -i 's|\.\./\.\./users-guide/|../users-guide/|' docs/install/install-with-kubectl.md
+			sed -i 's|\.\./\.\./users-guide/|../users-guide/|' docs/install/upgrades.md
+			sed -i 's|\.\./\.\./getting-started/|../getting-started/|' docs/install/upgrades.md
+			sed -i 's|\.\./\.\./users-guide/|../users-guide/|' docs/install/viewing-ui.md
+		fi
+		fix_toplevel_ordering
+		dump_terminology_toc "$v"
+		dump_architecture_toc "$v"
+		dump_best_practices_toc "$v"
 		if [ $do_versions -eq 1 ]; then
 			yarn docusaurus docs:version "$v"
 		fi
@@ -94,8 +139,11 @@ if [ $do_current -eq 1 ]; then
 		../lhws-mig-h2d-tools/tools/fix_last_col_metrics >/dev/null 2>&1
 		# shellcheck disable=SC2016
 		sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
-		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things ver "{}"
+		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things ver "$v" "{}"
 		fix_toplevel_ordering
+		dump_terminology_toc "$v"
+		dump_architecture_toc "$v"
+		dump_best_practices_toc "$v"
 		if [ $do_versions -eq 1 ]; then
 			yarn docusaurus docs:version "$v"
 		fi
@@ -136,4 +184,8 @@ else
 	ln -sf docusaurus.config-runtime.js docusaurus.config.js
 fi
 
+if [ $do_archives -eq 1 ]; then
+	ln -sf docusaurus.config-runtime-plus-archives.js docusaurus.config.js
+fi
 
+yarn build
