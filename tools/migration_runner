@@ -58,6 +58,14 @@ function dump_best_practices_toc() {
 	fi
 }
 
+function fix_heading_levels_for_architecture() {
+	fn=docs/concepts.md
+	sed -i 's/^### /#### /' "$fn"
+	sed -i 's/^## /### /' "$fn"
+	sed -i 's/^# /## /' "$fn"
+	sed -i "4 i toc_max_heading_level: 4" "$fn"
+}
+
 a_versions="0.8.0 0.8.1 1.0.0 1.0.1 1.0.2 1.1.0 1.1.1 1.1.2 1.1.3 1.2.0 1.2.1 1.2.2 1.2.3 1.2.4 1.2.5 1.2.6 1.3.0 1.3.1 1.3.2 1.3.3 1.3.4"
 c_versions="1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.5.5 1.6.0 1.6.1 1.7.0"
 
@@ -108,6 +116,7 @@ if [ $do_archives -eq 1 ]; then
 		dump_terminology_toc "$v"
 		dump_architecture_toc "$v"
 		dump_best_practices_toc "$v"
+		fix_heading_levels_for_architecture
 		if [ $do_versions -eq 1 ]; then
 			yarn docusaurus docs:version "$v"
 		fi
@@ -144,6 +153,7 @@ if [ $do_current -eq 1 ]; then
 		dump_terminology_toc "$v"
 		dump_architecture_toc "$v"
 		dump_best_practices_toc "$v"
+		fix_heading_levels_for_architecture
 		if [ $do_versions -eq 1 ]; then
 			yarn docusaurus docs:version "$v"
 		fi
