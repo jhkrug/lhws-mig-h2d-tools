@@ -6,6 +6,23 @@ do_archives=1
 do_current=1
 debug=0
 short=0
+do_canonical="false"
+production="false"
+
+function do_canonical_links() {
+	if [ $do_canonical == "true" ]; then
+		dprint "Doing canonical links"
+		if [ $production == "true" ]; then
+			dprint "Production mode, doing canonical links"
+			ruby ~/projects/suse/rm-seo-helpers/canonical_links.rb \
+				https://longhorn.io docs
+		else
+			dprint "Test mode, doing canonical links"
+			ruby ~/projects/suse/rm-seo-helpers/canonical_links.rb \
+				https://main--longhornio-docusaurus.netlify.app docs
+		fi
+	fi
+}
 
 function dprint() {
 	if [ $debug -eq 1 ]; then
@@ -28,46 +45,57 @@ function fix_toplevel_ordering() {
 	done < "$ifile"
 }
 
-function dump_terminology_toc() {
-	local v="$1"
-	local rfile=../lhws-mig-h2d-tools/terminology-toc-delete.list
-	local drange
-	drange=$(grep "^${v}" ${rfile} | cut -f2 -d' ')
-	if [ "${drange}" != "" ]; then
-		sed -i "${drange}d" docs/terminology.md
+function fix_heading_levels() {
+	local fn="$1"
+	if [ -f "$fn" ]; then
+		sed -i 's/^#### /##### /' "$fn"
+		sed -i 's/^### /#### /' "$fn"
+		sed -i 's/^## /### /' "$fn"
+		sed -i 's/^# /## /' "$fn"
+		sed -i "4 i toc_max_heading_level: 4" "$fn"
 	fi
 }
 
-function dump_architecture_toc() {
-	local v="$1"
-	local rfile=../lhws-mig-h2d-tools/architecture-toc-delete.list
-	local drange
-	drange=$(grep "^${v}" ${rfile} | cut -f2 -d' ')
-	if [ "${drange}" != "" ]; then
-		sed -i "${drange}d" docs/concepts.md
+function delete_in_page_toc_lines() {
+	local fn="$1"
+	if [ -f "$fn" ]; then
+		sed -Ei "/^\s{0,}- \[.*\]\(.*\)$/d" "$fn"
 	fi
-}
-
-function dump_best_practices_toc() {
-	local v="$1"
-	local rfile=../lhws-mig-h2d-tools/best-practices-toc-delete.list
-	local drange
-	drange=$(grep "^${v}" ${rfile} | cut -f2 -d' ')
-	if [ "${drange}" != "" ]; then
-		sed -i "${drange}d" docs/best-practices.md 2>/dev/null
-	fi
-}
-
-function fix_heading_levels_for_architecture() {
-	fn=docs/concepts.md
-	sed -i 's/^### /#### /' "$fn"
-	sed -i 's/^## /### /' "$fn"
-	sed -i 's/^# /## /' "$fn"
-	sed -i "4 i toc_max_heading_level: 4" "$fn"
 }
 
 a_versions="0.8.0 0.8.1 1.0.0 1.0.1 1.0.2 1.1.0 1.1.1 1.1.2 1.1.3 1.2.0 1.2.1 1.2.2 1.2.3 1.2.4 1.2.5 1.2.6 1.3.0 1.3.1 1.3.2 1.3.3 1.3.4"
 c_versions="1.4.0 1.4.1 1.4.2 1.4.3 1.4.4 1.4.5 1.5.0 1.5.1 1.5.2 1.5.3 1.5.4 1.5.5 1.6.0 1.6.1 1.7.0"
+
+
+fix_headings_list="
+	docs/concepts.md
+	docs/deploy/install/index.md
+	docs/deploy/upgrade/index.md
+	docs/nodes-and-volumes/rwx-volumes.md
+	docs/advanced-resources/deploy/taint-toleration.md
+	docs/advanced-resources/deploy/node-selector.md
+	docs/advanced-resources/deploy/priority-class.md
+	docs/advanced-resources/deploy/revision_counter.md
+	docs/advanced-resources/deploy/storage-network.md
+	docs/advanced-resources/security/volume-encryption.md
+	docs/advanced-resources/security/mtls-support.md"
+
+del_toc_list="
+		docs/terminology.md
+		docs/concepts.md
+		docs/best-practices.md
+	  docs/advanced-resources/system-backup-restore/backup-longhorn-system.md
+	  docs/advanced-resources/system-backup-restore/restore-longhorn-system.md
+	  docs/deploy/important-notes/index.md
+	  docs/maintenance/maintenance.md
+	  docs/references/examples.md
+	  docs/references/settings.md
+	  docs/troubleshooting/troubleshooting.md
+	  docs/deploy/uninstall/index.md
+	  docs/v2-data-engine/quick-start.md
+	  docs/deploy/install/airgap.md
+	  docs/advanced-resources/deploy/customizing-default-settings.md
+	  docs/v2-data-engine/troubleshooting.md"
 
 cd /home/jhk/projects/suse/longhorn-website-docusaurus || exit 1
 
@@ -75,6 +103,8 @@ cd /home/jhk/projects/suse/longhorn-website-docusaurus || exit 1
 rm -rf blog/* kb/* versioned_* versions.json docs/*
 
 
+# This is needed as the versions listed cause an error if they don't exist.
+# The build version hence excludes the list of versions.
 ln -sf docusaurus.config-buildtime.js docusaurus.config.js
 
 if [ $do_archives -eq 1 ]; then
@@ -113,10 +143,12 @@ if [ $do_archives -eq 1 ]; then
 			sed -i 's|\.\./\.\./users-guide/|../users-guide/|' docs/install/viewing-ui.md
 		fi
 		fix_toplevel_ordering
-		dump_terminology_toc "$v"
-		dump_architecture_toc "$v"
-		dump_best_practices_toc "$v"
-		fix_heading_levels_for_architecture
+		for f in $fix_headings_list; do
+			fix_heading_levels "$f"
+		done
+		for f in $del_toc_list; do
+			delete_in_page_toc_lines "$f"
+		done
 		if [ $do_versions -eq 1 ]; then
 			yarn docusaurus docs:version "$v"
 		fi
@@ -150,10 +182,12 @@ if [ $do_current -eq 1 ]; then
 		sed -i 's/{{host}}+{{path}}/`{{host}}+{{path}}`/' docs/references/helm-values.md > /dev/null 2>&1
 		find docs/ -type f -name '*.md' -print0 | xargs -0 -P 0 -I {} ../lhws-mig-h2d-tools/tools/fix_things ver "$v" "{}"
 		fix_toplevel_ordering
-		dump_terminology_toc "$v"
-		dump_architecture_toc "$v"
-		dump_best_practices_toc "$v"
-		fix_heading_levels_for_architecture
+		for f in $fix_headings_list; do
+			fix_heading_levels "$f"
+		done
+		for f in $del_toc_list; do
+			delete_in_page_toc_lines "$f"
+		done
 		if [ $do_versions -eq 1 ]; then
 			yarn docusaurus docs:version "$v"
 		fi
@@ -188,6 +222,8 @@ else
 	echo hello > kb/index.md
 fi
 
+do_canonical_links
+
 if [ $short -eq 1 ]; then
 	ln -sf docusaurus.config-runtime-short.js docusaurus.config.js
 else
@@ -198,4 +234,5 @@ if [ $do_archives -eq 1 ]; then
 	ln -sf docusaurus.config-runtime-plus-archives.js docusaurus.config.js
 fi
 
+# Finally, ensure it all builds.
 yarn build
