@@ -1,0 +1,2 @@
+#filename old-anchor new-anchor
+docs/references/storage-class-parameters.md ../advanced-resources/backing-image#create-and-use-a-backing-image-via-storageclass-and-pvc ../advanced-resources/backing-image/backing-image#create-and-use-a-backing-image-via-storageclass-and-pvc
