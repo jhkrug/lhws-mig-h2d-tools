@@ -5,7 +5,7 @@ do_versions=1
 do_kb_and_blog=1
 do_archives=1
 do_current=1
-debug=0
+debug=1
 short=0
 do_canonical="false"
 production="false"
@@ -86,6 +86,15 @@ function fix_heading_levels() {
 
 function delete_in_page_toc_lines() {
 	local fn="$1"
+	if [ "$fn" == "docs/troubleshoot/troubleshooting.md" ]; then
+		if [ -f "$fn" ]; then
+			dprint "Removing extraneous HRs from $fn"
+			tf=$(mktemp)
+			trap 'rm -rf "$tf"' EXIT
+			awk '{if (NR<=4) print; if (NR > 4 && ! /^---/) print }' "$fn" > "$tf"
+			mv "$tf" "$fn"
+		fi
+	fi
 	dprint "Removing in page table of contents for $fn"
 	if [ -f "$fn" ]; then
 		sed -Ei "/^\s{0,}- \[.*\]\(.*\)$/d" "$fn"
@@ -117,7 +126,7 @@ del_toc_list="
 	docs/maintenance/maintenance.md
 	docs/references/examples.md
 	docs/references/settings.md
-	docs/troubleshooting/troubleshooting.md
+	docs/troubleshoot/troubleshooting.md
 	docs/deploy/uninstall/index.md
 	docs/v2-data-engine/quick-start.md
 	docs/deploy/install/airgap.md
